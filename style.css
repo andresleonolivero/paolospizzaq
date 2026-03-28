@@ -250,3 +250,20 @@ th { background: #000; color: var(--accent); font-size: 0.75rem; text-transform:
     background: var(--danger);
     color: white;
 }
+.search-result {
+    border-style: dashed; /* Para diferenciar que es un resultado de búsqueda */
+    animation: fadeIn 0.3s ease;
+}
+
+.search-result small {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.65rem;
+    opacity: 0.7;
+    letter-spacing: 1px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
