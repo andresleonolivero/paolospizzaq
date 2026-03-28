@@ -1,19 +1,49 @@
 let DB = {
     menu: {
-        pizzas_completa: [{ nombre: "Pizza Grande", precio: 45000 }, { nombre: "Pizza Mediana", precio: 32000 }],
-        crepes: [{ nombre: "Crepe de Pollo", precio: 18000 }, { nombre: "Crepe Ternera", precio: 19500 }],
-        lasañas: [{ nombre: "Lasaña Bolonia", precio: 20000 }, { nombre: "Lasaña Pollo", precio: 22000 }],
-        bebidas: [{ nombre: "Gaseosa 350ml", precio: 3500 }, { nombre: "Jugo Natural", precio: 5000 }]
+        pizzas_completa: [
+            { nombre: "Pizza Grande (16 Porc.)", precio: 85000 },
+            { nombre: "Pizza Mediana (12 Porc.)", precio: 62000 },
+            { nombre: "Pizza Pequeña (8 Porc.)", precio: 50000 },
+            { nombre: "Pizza Mini (6 Porc.)", precio: 32000 }
+        ],
+        crepes: [
+            { nombre: "Crepe Paolos", precio: 30000 },
+            { nombre: "Crepe Marinero", precio: 30000 },
+            { nombre: "Crepe Clásico", precio: 27000 }
+        ],
+        lasañas: [
+            { nombre: "Lasaña Especial", precio: 23000 },
+            { nombre: "Lasaña Blanca", precio: 23000 },
+            { nombre: "Lasaña Vegetariana", precio: 23000 }
+        ],
+        bebidas: [
+            { nombre: "Gaseosa 1.5L", precio: 8500 },
+            { nombre: "Jugos Naturales", precio: 6000 },
+            { nombre: "Cerveza", precio: 4500 },
+            { nombre: "Gaseosa Personal", precio: 3500 }
+        ]
     },
     sabores_pizzas: [
-        { id: 1, nombre: "Hawaiana", precio: 8000 },
-        { id: 2, nombre: "Pepperoni", precio: 8500 },
-        { id: 3, nombre: "Pollo/Champ", precio: 8500 },
-        { id: 4, nombre: "Mexicana", precio: 9000 },
-        { id: 5, nombre: "Criolla", precio: 8500 }
+        { id: 1, nombre: "Peperoni Picante", precio: 7000 },
+        { id: 2, nombre: "Marinera", precio: 7000 },
+        { id: 3, nombre: "Mexicana", precio: 7000 },
+        { id: 4, nombre: "Camarón y Pollo", precio: 7000 },
+        { id: 5, nombre: "BBQ", precio: 7000 },
+        { id: 6, nombre: "Carnes", precio: 7000 },
+        { id: 7, nombre: "Pollo", precio: 7000 },
+        { id: 8, nombre: "Maíz Tocineta", precio: 7000 },
+        { id: 9, nombre: "Tropical", precio: 7000 },
+        { id: 10, nombre: "De la Huerta", precio: 7000 },
+        { id: 11, nombre: "Romana", precio: 7000 },
+        { id: 12, nombre: "Salami", precio: 7000 },
+        { id: 13, nombre: "Pollo Miel Mostaza", precio: 7000 },
+        { id: 14, nombre: "Hawaiana", precio: 7000 },
+        { id: 15, nombre: "Pollo Champiñones", precio: 7000 },
+        { id: 16, nombre: "Napolitana", precio: 7000 },
+        { id: 17, nombre: "Jamón Pollo", precio: 7000 },
+        { id: 18, nombre: "Vegetariana", precio: 7000 }
     ],
-    bebidas: [{ id: 101, nombre: "Coca-Cola 1.5L", cantidad: 12, precio: 5500 }],
-    inv_huevos: [{ id: 201, nombre: "Canasta AA", cantidad: 10, precio: 16000 }]
+    bebidas_inv: [{ id: 101, nombre: "Coca-Cola 1.5L", cantidad: 12, precio: 5500 }]
 };
 
 let Cuentas = {};
@@ -30,15 +60,11 @@ function login() {
 function openModule(tipo) {
     document.getElementById('module-selector').classList.add('hidden');
     document.getElementById('work-area').classList.remove('hidden');
-    document.getElementById('btn-back-tables').classList.add('hidden');
     const container = document.getElementById('module-content');
     const title = document.getElementById('module-title');
-    container.innerHTML = "";
-
+    
     if (tipo === 'pizzas') { title.innerText = "MÓDULO MESAS"; renderTables(container); }
-    else if (tipo === 'huevos') { title.innerText = "VENTA HUEVOS"; renderVentaHuevos(container); }
-    else if (tipo === 'inv-bebidas') { title.innerText = "INVENTARIO BEBIDAS"; renderInventory(container, 'bebidas'); }
-    else if (tipo === 'inv-huevos') { title.innerText = "INVENTARIO HUEVOS"; renderInventory(container, 'inv_huevos'); }
+    else if (tipo === 'inv-bebidas') { title.innerText = "INV. BEBIDAS"; renderInventory(container, 'bebidas_inv'); }
 }
 
 function renderTables(container) {
@@ -61,6 +87,9 @@ function selectDestino(destino) {
     document.getElementById('btn-back-tables').classList.remove('hidden');
 
     container.innerHTML = `
+        <div class="search-box">
+            <input type="text" id="product-search" placeholder="🔍 Buscar producto o sabor..." onkeyup="filterItems('${destino}')">
+        </div>
         <div class="categories-grid">
             <button class="category-btn" onclick="renderProductsByCategory('porcion', '${destino}')">🍕 PORCIÓN</button>
             <button class="category-btn" onclick="renderProductsByCategory('pizzas_completa', '${destino}')">🥘 PIZZA C.</button>
@@ -68,38 +97,84 @@ function selectDestino(destino) {
             <button class="category-btn" onclick="renderProductsByCategory('lasañas', '${destino}')">🍝 LASAÑAS</button>
             <button class="category-btn" onclick="renderProductsByCategory('bebidas', '${destino}')">🥤 BEBIDAS</button>
         </div>
+        <div id="product-list-container"></div>
         <div id="summary-container"></div>`;
     renderOrderSummary(destino);
 }
 
 function renderProductsByCategory(cat, dest) {
-    const container = document.getElementById('module-content');
+    document.getElementById('product-search').value = "";
+    const container = document.getElementById('product-list-container');
+    
     if (cat === 'porcion') { renderFlavorSelector(container, dest); return; }
 
-    container.innerHTML = `<div style="padding:0 15px;"><button onclick="selectDestino('${dest}')" class="btn-nav" style="margin-bottom:10px;">< Volver</button><div class="products-grid"></div></div>`;
+    let html = `<div class="products-grid">`;
     DB.menu[cat].forEach(p => {
-        container.querySelector('.products-grid').innerHTML += `
-            <div class="product-card">
-                <h4>${p.nombre}</h4>
-                <span class="price">$${p.precio.toLocaleString()}</span>
-                <button class="btn-action" onclick="addItemToOrder('${dest}', '${p.nombre}', ${p.precio})">AGREGAR</button>
-            </div>`;
+        // Si es pizza completa, abrir selector de sabores
+        const action = (cat === 'pizzas_completa') 
+            ? `renderPizzaFlavorSelector('${dest}', '${p.nombre}', ${p.precio})`
+            : `addItemToOrder('${dest}', '${p.nombre}', ${p.precio})`;
+            
+        html += `<div class="product-card"><h4>${p.nombre}</h4><span class="price">$${p.precio.toLocaleString()}</span>
+        <button class="btn-action" onclick="${action}">SELECCIONAR</button></div>`;
     });
+    html += `</div>`;
+    container.innerHTML = html;
 }
 
-function renderFlavorSelector(container, dest) {
-    let html = `<div style="padding:0 15px;"><button onclick="selectDestino('${dest}')" class="btn-nav" style="margin-bottom:10px;">< Volver</button><div class="flavor-list">`;
+// Selector de sabores para Pizzas Completas (Elegir hasta 2 sabores por pizza)
+function renderPizzaFlavorSelector(dest, pizzaNombre, precio) {
+    const container = document.getElementById('product-list-container');
+    let html = `<div class="flavor-selection-box">
+                    <h4 class="accent">Sabores para: ${pizzaNombre}</h4>
+                    <p style="font-size:0.8rem; color:#888;">Selecciona los sabores (Máx. 2):</p>
+                    <div class="flavor-list">`;
+    
     DB.sabores_pizzas.forEach(s => {
-        html += `<div class="flavor-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
+        html += `<div class="flavor-item-check">
+                    <input type="checkbox" id="pizza-sabor-${s.id}" value="${s.nombre}" class="pizza-flavor-cb">
+                    <label for="pizza-sabor-${s.id}">${s.nombre}</label>
+                 </div>`;
+    });
+
+    html += `</div>
+            <button class="btn-action neon-btn" onclick="confirmarPizzaCompleta('${dest}', '${pizzaNombre}', ${precio})">AGREGAR AL PEDIDO</button>
+            </div>`;
+    container.innerHTML = html;
+}
+
+function confirmarPizzaCompleta(dest, pizzaNombre, precio) {
+    const selected = Array.from(document.querySelectorAll('.pizza-flavor-cb:checked')).map(cb => cb.value);
+    
+    if (selected.length === 0) {
+        alert("Por favor selecciona al menos un sabor.");
+        return;
+    }
+    if (selected.length > 2) {
+        alert("Máximo 2 sabores por pizza.");
+        return;
+    }
+
+    const saborFinal = selected.join(" / ");
+    const itemNombre = `${pizzaNombre} (${saborFinal})`;
+    
+    addItemToOrder(dest, itemNombre, precio);
+}
+
+// Resto de funciones (Mismas de la versión anterior)
+function renderFlavorSelector(container, dest) {
+    let html = `<div class="flavor-list">`;
+    DB.sabores_pizzas.forEach(s => {
+        html += `<div class="flavor-item">
             <div><h4>${s.nombre}</h4><span class="accent">$${s.precio.toLocaleString()}</span></div>
-            <div class="flavor-qty" style="display:flex; align-items:center; gap:10px;">
+            <div class="flavor-qty">
                 <button class="btn-nav" onclick="updateFlavorQty(${s.id}, -1)">-</button>
                 <span class="qty-number" id="f-${s.id}">0</span>
                 <button class="btn-nav" onclick="updateFlavorQty(${s.id}, 1)">+</button>
             </div>
         </div>`;
     });
-    html += `</div><button class="btn-action" onclick="savePortions('${dest}')">CONFIRMAR PORCIONES</button></div>`;
+    html += `</div><button class="btn-action" onclick="savePortions('${dest}')">CONFIRMAR PORCIONES</button>`;
     container.innerHTML = html;
 }
 
@@ -112,133 +187,96 @@ function updateFlavorQty(id, d) {
 function addItemToOrder(dest, nombre, precio) {
     if (!Cuentas[dest]) Cuentas[dest] = [];
     Cuentas[dest].push({ nombre, precio });
-    selectDestino(dest);
+    renderOrderSummary(dest);
 }
 
 function savePortions(dest) {
     if (!Cuentas[dest]) Cuentas[dest] = [];
     DB.sabores_pizzas.forEach(s => {
         const el = document.getElementById(`f-${s.id}`);
-        if(el) {
+        if(el){
             const qty = parseInt(el.innerText);
             for(let i=0; i < qty; i++) { Cuentas[dest].push({ nombre: `Porción ${s.nombre}`, precio: s.precio }); }
+            el.innerText = 0;
         }
     });
-    selectDestino(dest);
+    renderOrderSummary(dest);
 }
 
 function renderOrderSummary(dest) {
-    const items = Cuentas[dest] || [];
+    const rawItems = Cuentas[dest] || [];
     let total = 0;
+    
+    const groupedItems = rawItems.reduce((acc, item) => {
+        const key = item.nombre;
+        if (!acc[key]) acc[key] = { nombre: item.nombre, precio: item.precio, cantidad: 0 };
+        acc[key].cantidad += 1;
+        total += item.precio;
+        return acc;
+    }, {});
+
     let html = `<div class="order-summary"><div class="summary-title">Resumen: ${dest}</div><div class="summary-list">`;
-    if (items.length === 0) html += `<p style="color:#555; font-size:0.8rem;">Sin pedidos activos.</p>`;
-    else {
-        items.forEach(item => {
-            total += item.precio;
-            html += `<div class="summary-item"><span>${item.nombre}</span><span>$${item.precio.toLocaleString()}</span></div>`;
-        });
-    }
+    Object.values(groupedItems).forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        html += `<div class="summary-item"><span><b>${item.cantidad}x</b> ${item.nombre}</span><span>$${subtotal.toLocaleString()}</span></div>`;
+    });
     html += `</div><div class="summary-total"><span>TOTAL</span><span>$${total.toLocaleString()}</span></div>
              <button class="btn-action" style="background:var(--danger); color:white; margin-top:20px;" onclick="clearOrder('${dest}')">COBRAR Y FINALIZAR</button></div>`;
     document.getElementById('summary-container').innerHTML = html;
 }
 
 function clearOrder(dest) {
-    if (confirm(`¿Finalizar cuenta de ${dest}?`)) { Cuentas[dest] = []; openModule('pizzas'); }
-}
-
-function renderInventory(c, cat) {
-    let tot = 0;
-    let h = `
-    <div class="inventory-form">
-        <input type="text" id="in-n" placeholder="Item">
-        <input type="number" id="in-q" placeholder="Cant.">
-        <input type="number" id="in-p" placeholder="Precio">
-        <button class="btn-action neon-btn" onclick="saveInv('${cat}')">OK</button>
-    </div>
-    <table>
-        <thead><tr><th>ITEM</th><th>CANT.</th><th>PRECIO</th><th>ACCIONES</th></tr></thead>
-        <tbody>`;
-    DB[cat].forEach(i => {
-        tot += (i.cantidad * i.precio);
-        h += `<tr><td>${i.nombre}</td><td>${i.cantidad}</td><td>$${i.precio.toLocaleString()}</td><td>
-            <button onclick="editInv('${cat}',${i.id})" class="btn-edit">✎</button>
-            <button onclick="delInv('${cat}',${i.id})" class="btn-del">✕</button>
-        </td></tr>`;
-    });
-    h += `</tbody></table><div class="inv-total">VALOR TOTAL: $${tot.toLocaleString()}</div>`;
-    c.innerHTML = h;
-}
-
-function saveInv(cat) {
-    const n = document.getElementById('in-n').value, q = parseInt(document.getElementById('in-q').value), p = parseInt(document.getElementById('in-p').value);
-    if(n && !isNaN(q) && !isNaN(p)) { 
-        DB[cat].push({id: Date.now(), nombre: n, cantidad: q, precio: p}); 
-        openModule(cat==='bebidas'?'inv-bebidas':'inv-huevos'); 
-    }
-}
-
-function editInv(cat, id) {
-    const i = DB[cat].find(x => x.id === id);
-    const n = prompt("Nuevo nombre:", i.nombre), q = prompt("Nueva cantidad:", i.cantidad), p = prompt("Nuevo precio:", i.precio);
-    if(n && q && p) { i.nombre = n; i.cantidad = parseInt(q); i.precio = parseInt(p); openModule(cat==='bebidas'?'inv-bebidas':'inv-huevos'); }
-}
-
-function delInv(cat, id) {
-    if(confirm("¿Eliminar item?")) { DB[cat] = DB[cat].filter(x => x.id !== id); openModule(cat==='bebidas'?'inv-bebidas':'inv-huevos'); }
-}
-
-function renderVentaHuevos(c) {
-    c.innerHTML = '<div class="products-grid" id="huevos-sales-grid"></div>';
-    const grid = document.getElementById('huevos-sales-grid');
-    const disponibles = DB.inv_huevos;
-
-    disponibles.forEach(i => {
-        const precioVenta = i.precio + 3000; 
-        grid.innerHTML += `
-            <div class="product-card egg-card">
-                <div class="stock-badge">${i.cantidad} DISP.</div>
-                <span class="egg-icon">🥚</span>
-                <h4>${i.nombre.toUpperCase()}</h4>
-                <span class="price">$${precioVenta.toLocaleString()}</span>
-                
-                <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">
-                    <button class="btn-nav" onclick="updateVentaQty(${i.id}, -1)">-</button>
-                    <span id="qty-v-${i.id}" style="font-family:'Orbitron'; font-weight:bold;">1</span>
-                    <button class="btn-nav" onclick="updateVentaQty(${i.id}, 1)">+</button>
-                </div>
-
-                <select id="pay-v-${i.id}" class="btn-nav" style="width:100%; margin-bottom:10px; background:#1a1a1a; border-color:var(--border); color:white; font-size:0.8rem;">
-                    <option value="EFECTIVO">💵 EFECTIVO</option>
-                    <option value="TRANSFERENCIA">📱 TRANSFERENCIA</option>
-                </select>
-
-                <button class="btn-action neon-btn" onclick="venderH(${i.id})">COBRAR VENTA</button>
-            </div>`;
-    });
-}
-
-function updateVentaQty(id, d) {
-    const el = document.getElementById(`qty-v-${id}`);
-    const item = DB.inv_huevos.find(x => x.id === id);
-    let val = parseInt(el.innerText) + d;
-    if (val >= 1 && val <= item.cantidad) el.innerText = val;
-}
-
-function venderH(id) {
-    const item = DB.inv_huevos.find(x => x.id === id);
-    const qty = parseInt(document.getElementById(`qty-v-${id}`).innerText);
-    const met = document.getElementById(`pay-v-${id}`).value;
-    const total = (item.precio + 3000) * qty;
-
-    if (item && item.cantidad >= qty) {
-        if(confirm(`¿Cobrar $${total.toLocaleString()} (${met}) por ${qty} unidad(es)?`)) {
-            item.cantidad -= qty;
-            alert(`Venta registrada con éxito!`);
-            renderVentaHuevos(document.getElementById('module-content'));
-        }
-    }
+    if (confirm(`¿Finalizar cuenta de ${dest}?`)) { Cuentas[dest] = []; selectDestino(dest); }
 }
 
 function showMenu() { document.getElementById('work-area').classList.add('hidden'); document.getElementById('module-selector').classList.remove('hidden'); }
 function logout() { location.reload(); }
+// ... (resto del código igual arriba)
+
+function renderOrderSummary(dest) {
+    const rawItems = Cuentas[dest] || [];
+    let total = 0;
+    
+    // Agrupamos para mostrar, pero guardamos el índice original para poder borrar
+    const groupedItems = rawItems.reduce((acc, item, index) => {
+        const key = item.nombre;
+        if (!acc[key]) acc[key] = { nombre: item.nombre, precio: item.precio, cantidad: 0, indices: [] };
+        acc[key].cantidad += 1;
+        acc[key].indices.push(index); // Guardamos la posición para borrar el último agregado de este tipo
+        total += item.precio;
+        return acc;
+    }, {});
+
+    let html = `<div class="order-summary"><div class="summary-title">Resumen: ${dest}</div><div class="summary-list">`;
+    
+    Object.values(groupedItems).forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        // El botón de borrar usará el último índice guardado de ese tipo de producto
+        const lastIndex = item.indices[item.indices.length - 1];
+        
+        html += `
+            <div class="summary-item">
+                <span><b>${item.cantidad}x</b> ${item.nombre}</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span>$${subtotal.toLocaleString()}</span>
+                    <button class="btn-del-item" onclick="removeItem('${dest}', ${lastIndex})">✕</button>
+                </div>
+            </div>`;
+    });
+
+    if (rawItems.length === 0) html += `<div style="text-align:center; color:#555; padding:10px;">Sin productos</div>`;
+
+    html += `</div><div class="summary-total"><span>TOTAL</span><span>$${total.toLocaleString()}</span></div>
+             <button class="btn-action" style="background:var(--success); color:#000; margin-top:20px;" onclick="clearOrder('${dest}')">COBRAR Y FINALIZAR</button></div>`;
+    document.getElementById('summary-container').innerHTML = html;
+}
+
+// Nueva función para borrar un solo item
+function removeItem(dest, index) {
+    if (Cuentas[dest]) {
+        Cuentas[dest].splice(index, 1); // Elimina el elemento en esa posición
+        renderOrderSummary(dest); // Refresca el cuadro
+    }
+}
+
+// ... (resto del código igual abajo)
