@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PAOLO'S PIZZAS | Sistema Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="grid-overlay"></div>
+
+    <section id="login-section" class="auth-container">
+        <div class="auth-card">
+            <h1 class="brand-login">PAOLO'S <span class="accent">PIZZAS</span></h1>
+            <div class="input-field">
+                <input type="text" id="username" required autocomplete="off">
+                <label>Usuario</label>
+            </div>
+            <div class="input-field">
+                <input type="password" id="password" required>
+                <label>Contraseña</label>
+            </div>
+            <button onclick="login()" class="btn-action">INGRESAR</button>
+        </div>
+    </section>
+
+    <main id="dashboard" class="hidden">
+        <header class="top-bar">
+            <div class="brand">PAOLO'S <span class="accent">PIZZAS</span></div>
+            <div class="user-meta">
+                <span id="user-display"></span>
+                <button onclick="logout()" class="btn-logout">SALIR</button>
+            </div>
+        </header>
+
+        <section id="module-selector" class="menu-grid">
+            <button class="menu-item glass-card neon-hover" onclick="openModule('pizzas')">
+                <span class="symbol">🍕</span>PIZZAS
+            </button>
+            <button class="menu-item glass-card neon-hover" onclick="openModule('huevos')">
+                <span class="symbol">🥚</span>VENTA HUEVOS
+            </button>
+            <button class="menu-item glass-card neon-hover" onclick="openModule('inv-bebidas')">
+                <span class="symbol">🥤</span>INV. BEBIDAS
+            </button>
+            <button class="menu-item glass-card neon-hover" onclick="openModule('inv-huevos')">
+                <span class="symbol">📦</span>INV. HUEVOS
+            </button>
+        </section>
+
+        <section id="work-area" class="hidden">
+            <div class="work-header">
+                <div class="nav-controls">
+                    <button onclick="showMenu()" class="btn-nav neon-border">MENÚ</button>
+                    <button id="btn-back-tables" onclick="openModule('pizzas')" class="btn-nav hidden">VOLVER</button>
+                </div>
+                <h3 id="module-title" class="accent-title"></h3>
+            </div>
+            
+            <div id="module-content" class="content-display"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
